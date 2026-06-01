@@ -12,7 +12,7 @@ mod image_extract;
 
 fn main() -> Result<(), ImageError> {
     let mut path = std::env::current_dir()?;
-
+    d;
     //Debug folder
     #[cfg(debug_assertions)]
     {
