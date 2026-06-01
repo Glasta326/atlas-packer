@@ -1,0 +1,35 @@
+[
+  {
+    "label": "Run program: Debug",
+    "adapter": "CodeLLDB",
+
+    "build": {
+      "command": "cargo",
+      "args": ["build"],
+    },
+
+    "sourceLanguages": ["rust"],
+  },
+  {
+    "label": "Run tests: Debug",
+    "adapter": "CodeLLDB",
+
+    "build": {
+      "command": "cargo",
+      "args": ["test", "--no-run"],
+    },
+
+    "sourceLanguages": ["rust"],
+  },
+  {
+    "label": "Run program: Release",
+    "adapter": "CodeLLDB",
+
+    "build": {
+      "command": "cargo",
+      "args": ["build","-r"],
+    },
+
+    "sourceLanguages": ["rust"],
+  },
+]
