@@ -11,11 +11,15 @@ mod atlas;
 mod image_extract;
 
 fn main() -> Result<(), ImageError> {
-    let path = std::env::current_dir()?;
+    let mut path = std::env::current_dir()?;
 
     //Debug folder
-    let mut path = PathBuf::new();
-    path.push("/home/Glasta/Projects/Rust/g_atlas/images_to_use");
+    #[cfg(debug_assertions)]
+    {
+        path = PathBuf::new();
+        path.push("/home/Glasta/Projects/Rust/atlas-packer/testing_images");
+        println!("Debug mode!");
+    }
 
     println!("Finding files inside folder: {}\n", path.display());
     let files = image_extract::collect_files(&path)?;
