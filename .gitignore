@@ -25,3 +25,6 @@ target
 
 /target
 Cargo.lock
+output.png
+output.json
+testing_images/
