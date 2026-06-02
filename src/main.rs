@@ -12,7 +12,13 @@ mod image_extract;
 
 fn main() -> Result<(), ImageError> {
     let mut path = std::env::current_dir()?;
-    
+
+    // If the user provides an input filepath, use that instead
+    let mut args = std::env::args_os().skip(1);
+    if args.len() > 0 {
+        path = PathBuf::from(args.next().unwrap().to_string_lossy().into_owned());
+    }
+
     //Debug folder
     #[cfg(debug_assertions)]
     {

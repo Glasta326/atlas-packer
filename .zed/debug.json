@@ -27,7 +27,18 @@
 
     "build": {
       "command": "cargo",
-      "args": ["build","-r"],
+      "args": ["run","-release"],
+    },
+
+    "sourceLanguages": ["rust"],
+  },
+  {
+    "label": "Build program: Release",
+    "adapter": "CodeLLDB",
+
+    "build": {
+      "command": "cargo",
+      "args": ["build", "-release"],
     },
 
     "sourceLanguages": ["rust"],
