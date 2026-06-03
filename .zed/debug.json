@@ -27,7 +27,7 @@
 
     "build": {
       "command": "cargo",
-      "args": ["run","-release"],
+      "args": ["run","-r"],
     },
 
     "sourceLanguages": ["rust"],
@@ -38,7 +38,7 @@
 
     "build": {
       "command": "cargo",
-      "args": ["build", "-release"],
+      "args": ["build", "-r"],
     },
 
     "sourceLanguages": ["rust"],

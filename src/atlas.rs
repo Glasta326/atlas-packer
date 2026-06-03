@@ -106,9 +106,12 @@ fn pack_atlas(
 ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     // Inital state for atlas dimensions
     let mut lower_bound = 1;
+    // Start with an inital guess for the upper bound as the sqrt of every textures width + height added
     let mut upper_bound = init_images
         .iter()
-        .fold(0, |acc, x| acc + x.texture.width() + x.texture.height()); // Extreme upper bound but this guarantees it works
+        .fold(0, |acc, x| acc + x.texture.width() + x.texture.height());
+    upper_bound = upper_bound.isqrt();
+
     let mut best_working_size = (upper_bound + lower_bound) / 2;
 
     // Reused data
@@ -116,22 +119,55 @@ fn pack_atlas(
     let mut region_tree: Vec<Region> = vec![];
     let mut image_array: Vec<TextureData> = init_images.to_vec();
 
+    // Keep doubling upper bound utill a valid size is found or failure occurs
+    println!("Calibrating upper bound...");
+    let mut calibrating = true;
+    while calibrating {
+        // Reset parameters and attempt packing
+        image_array = init_images.clone();
+        atlas_data.clear();
+        region_tree.clear();
+        region_tree.push(Region::new(0, 0, upper_bound, upper_bound));
+        atlas_texture = image::RgbaImage::new(upper_bound, upper_bound);
+        recursive_pack(
+            &mut image_array,
+            atlas_data,
+            &mut region_tree,
+            &mut atlas_texture,
+        );
+
+        if image_array.len() == 0 {
+            calibrating = false;
+        } else {
+            upper_bound *= 2;
+            println!(
+                "Packing failed, images unpacked: {}\nUpper bound increased to: {}",
+                image_array.len(),
+                upper_bound
+            );
+        }
+    }
+    println!(
+        "Packing was successful. Upper bound set to: {}",
+        upper_bound
+    );
+
     // Binary search on bounding size of atlas
     let mut iteration = 0;
     while (upper_bound - lower_bound) > 1 {
-        let midpoint = (upper_bound + lower_bound) / 2;
+        let mut midpoint = (upper_bound + lower_bound) / 2;
 
         println!(
             "Iteration: {} [Best size: {}, Lower bound: {}, Upper bound: {}, Current midpoint: {}]",
             iteration, best_working_size, lower_bound, upper_bound, midpoint
         );
 
+        // Reset parameters and attempt packing
         image_array = init_images.clone();
         atlas_data.clear();
         region_tree.clear();
         region_tree.push(Region::new(0, 0, midpoint, midpoint));
         atlas_texture = image::RgbaImage::new(midpoint, midpoint);
-
         recursive_pack(
             &mut image_array,
             atlas_data,
