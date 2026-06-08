@@ -1,29 +1,72 @@
 use std::{
-    collections::HashMap,
-    error::{self, Error},
-    fmt,
     ops::Add,
     path::PathBuf,
 };
-
-use image::ImageError;
 mod atlas;
 mod image_extract;
 
-fn main() -> Result<(), ImageError> {
-    let mut path = std::env::current_dir()?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    if std::env::args_os().any(|a| a == "-h" || a == "--help") {
+        println!(
+            "
+        Usage: ./atlas-packer (OPTIONS)
+        
+        Options:
+            [-v | --version]: Display the current application version
+            [-h | --help]: Display this help text
+            [-t | --target]: Specify a target folder to use,
+            Default behaviour operates in the same folder as the executable is run in
+            [-n | --norotate]: Disable rotation of images when being packed into the atlas
 
-    // If the user provides an input filepath, use that instead
+        Examples:
+            ./atlas-packer -t /home/MyUser/Downloads/
+            ./atlas-packer -n
+
+        Detailed example of console usage:
+            User@Computer:~/Desktop$ ls
+            1126556862070915214.webp  centrifuge.png  image.png       my-image.png     Q5.png
+            atlas-packer              CuteCat.png     Item_Gold.webp  pixelsword.webp  Scenery.png
+            pixelsword.png  
+            User@Computer:~/Desktop$ ./atlas-packer -n
+            > Program output...
+            > Program output...
+            User@Computer:~/Desktop$ ls
+            1126556862070915214.webp  centrifuge.png  image.png       my-image.png  output.png       Q5.png
+            atlas-packer              CuteCat.png     Item_Gold.webp  output.json   pixelsword.webp  Scenery.png
+        "
+        );
+        return Ok(());
+    }
+    else if std::env::args_os().any(|a| a == "-v" || a == "--version") {
+        println!("{}: {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
+    let mut path = std::env::current_dir()?;
     let mut args = std::env::args_os().skip(1);
-    if args.len() > 0 {
-        path = PathBuf::from(args.next().unwrap().to_string_lossy().into_owned());
+
+    let mut canrotate = true;
+    while let Some(arg) = args.next() {
+        match arg.to_string_lossy().to_lowercase().as_ref() {
+            "-t" | "--target" => {
+                let target_folder = args.next().ok_or(format!("{} was used, but no folder path was provided.\nHint: use -h or --help for info",arg.display()))?;
+                path = PathBuf::from(target_folder);
+            }
+            "-n" | "--norotate" => {
+                canrotate = false;
+                println!("Disabled rotation.");
+            }
+            _ => {
+                return Err(format!("Unknown parameter: '{}'", arg.display()))?;
+            }
+        }
     }
 
     //Debug folder
     #[cfg(debug_assertions)]
     {
         path = PathBuf::new();
-        path.push("/home/Glasta/Projects/Rust/atlas-packer/testing_images");
+        path.push("testing_images/");
         println!("Debug mode!");
     }
 
@@ -37,7 +80,7 @@ fn main() -> Result<(), ImageError> {
 
     println!("\nFound images:");
     let images = image_extract::load_image_array(files)?;
-    let (atlas, json) = atlas::gen_atlas(images)?;
+    let (atlas, json) = atlas::gen_atlas(images, canrotate)?;
 
     println!("\nSaving output files...");
     let filename = "output".to_string();

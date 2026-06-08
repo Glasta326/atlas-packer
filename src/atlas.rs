@@ -78,6 +78,7 @@ impl Region {
 
 pub fn gen_atlas(
     mut images: Vec<TextureData>,
+    allow_rotation: bool,
 ) -> Result<(ImageBuffer<Rgba<u8>, Vec<u8>>, String), ImageError> {
     // Sort images by DESCENDING area, so the largest textures are first
     images.sort_by(|b, a| {
@@ -86,7 +87,7 @@ pub fn gen_atlas(
     });
 
     let mut atlas_key: HashMap<String, AtlasEntry> = HashMap::new();
-    let atlas = pack_atlas(images, &mut atlas_key);
+    let atlas = pack_atlas(images, &mut atlas_key, allow_rotation);
 
     // Print info on the generated atlas keys
     // for key in atlas_key.keys() {
@@ -103,6 +104,7 @@ pub fn gen_atlas(
 fn pack_atlas(
     mut init_images: Vec<TextureData>,
     atlas_data: &mut HashMap<String, AtlasEntry>,
+    allow_rotation: bool,
 ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     // Inital state for atlas dimensions
     let mut lower_bound = 1;
@@ -134,6 +136,7 @@ fn pack_atlas(
             atlas_data,
             &mut region_tree,
             &mut atlas_texture,
+            allow_rotation,
         );
 
         if image_array.len() == 0 {
@@ -173,6 +176,7 @@ fn pack_atlas(
             atlas_data,
             &mut region_tree,
             &mut atlas_texture,
+            allow_rotation,
         );
 
         // No images in the array means packing was succesful
@@ -197,6 +201,7 @@ fn pack_atlas(
         atlas_data,
         &mut region_tree,
         &mut atlas_texture,
+        allow_rotation,
     );
 
     return atlas_texture;
@@ -227,6 +232,7 @@ fn recursive_pack(
     atlas_data: &mut HashMap<String, AtlasEntry>,
     region_tree: &mut Vec<Region>,
     atlas_texture: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
+    allow_rotation: bool,
 ) {
     // Get the smallest region
     let this_region = match region_tree.pop() {
@@ -244,7 +250,7 @@ fn recursive_pack(
             rotated = false;
         }
         // When rotated, h and w are flipped
-        else if this_region.can_fit(images[i].h, images[i].w) {
+        else if allow_rotation && this_region.can_fit(images[i].h, images[i].w) {
             rotated = true;
         } else {
             continue;
@@ -318,7 +324,7 @@ fn recursive_pack(
 
         break;
     }
-    recursive_pack(images, atlas_data, region_tree, atlas_texture);
+    recursive_pack(images, atlas_data, region_tree, atlas_texture, allow_rotation);
 }
 
 fn insert_key(
