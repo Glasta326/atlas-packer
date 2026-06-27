@@ -25,7 +25,7 @@ to appear.
 
 Alternatively, you can do the same setup and run it via a terminal to see progress information
 
-# Extra info & CLI options
+### Extra usage info / CLI options
 
 ```
 Options:
