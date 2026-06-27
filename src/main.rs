@@ -1,7 +1,4 @@
-use std::{
-    ops::Add,
-    path::PathBuf,
-};
+use std::{ops::Add, path::PathBuf};
 mod atlas;
 mod image_extract;
 
@@ -17,6 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             [-t | --target]: Specify a target folder to use,
             Default behaviour operates in the same folder as the executable is run in
             [-n | --norotate]: Disable rotation of images when being packed into the atlas
+            [-p | --padding]: Set the amount of empty space padding between images packed into the atlas
 
         Examples:
             ./atlas-packer -t /home/MyUser/Downloads/
@@ -36,8 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "
         );
         return Ok(());
-    }
-    else if std::env::args_os().any(|a| a == "-v" || a == "--version") {
+    } else if std::env::args_os().any(|a| a == "-v" || a == "--version") {
         println!("{}: {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
@@ -46,6 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args_os().skip(1);
 
     let mut canrotate = true;
+    let mut padding = 0;
     while let Some(arg) = args.next() {
         match arg.to_string_lossy().to_lowercase().as_ref() {
             "-t" | "--target" => {
@@ -55,6 +53,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "-n" | "--norotate" => {
                 canrotate = false;
                 println!("Disabled rotation.");
+            }
+            "-p" | "--padding" => {
+                let v = args.next().ok_or(format!(
+                    "{} was used, but no value was provided.\nHint: use -h or --help for info",
+                    arg.display()
+                ))?;
+                padding = v.to_string_lossy().parse()?;
             }
             _ => {
                 return Err(format!("Unknown parameter: '{}'", arg.display()))?;
@@ -79,7 +84,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("\nFound images:");
-    let images = image_extract::load_image_array(files)?;
+    let images = image_extract::load_image_array(files, padding)?;
     let (atlas, json) = atlas::gen_atlas(images, canrotate)?;
 
     println!("\nSaving output files...");

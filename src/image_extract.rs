@@ -40,9 +40,9 @@ pub struct TextureData {
 }
 
 impl TextureData {
-    pub fn new(name: String, texture: RgbaImage) -> Self {
-        let w = texture.dimensions().0;
-        let h = texture.dimensions().1;
+    pub fn new(name: String, texture: RgbaImage, padding: u32) -> Self {
+        let w = texture.dimensions().0 + padding;
+        let h = texture.dimensions().1 + padding;
         return TextureData {
             name,
             texture,
@@ -56,7 +56,10 @@ impl TextureData {
     }
 }
 
-pub fn load_image_array(image_paths: Vec<PathBuf>) -> Result<Vec<TextureData>, ImageError> {
+pub fn load_image_array(
+    image_paths: Vec<PathBuf>,
+    padding: u32,
+) -> Result<Vec<TextureData>, ImageError> {
     // Pre-known amount of images so we can reserve size beforehand instead of making the vec resize every time we add a new one
     // Most pointless optimisation ever but every cpu cycle counts
     let mut tex_array: Vec<TextureData> = Vec::new();
@@ -79,7 +82,7 @@ pub fn load_image_array(image_paths: Vec<PathBuf>) -> Result<Vec<TextureData>, I
         //     entry.extension().unwrap().display()
         // );
 
-        tex_array.push(TextureData::new(name, tex));
+        tex_array.push(TextureData::new(name, tex, padding));
     }
 
     return Ok(tex_array);
