@@ -9,7 +9,7 @@ The output of this program is designed for a seperate project of mine to use in 
 This will come shipped as an executable file within the main project this code is for, but you can build and use on its own:
 
 ```bash
-git clone URL
+git clone https://github.com/Glasta326/atlas-packer.git
 cd atlas-packer
 cargo build --release
 ```
