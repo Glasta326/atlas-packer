@@ -11,16 +11,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Options:
             [-v | --version]: Display the current application version
             [-h | --help]: Display this help text
-            [-t | --target]: Specify a target folder to use,
-            Default behaviour operates in the same folder as the executable is run in
+            [-t | --target]: Specify a target folder to use. Default behaviour operates in the same folder as the executable is run in
             [-n | --norotate]: Disable rotation of images when being packed into the atlas
-            [-p | --padding]: Set the amount of empty space padding between images packed into the atlas
+            [-p | --padding <value>]: Set the amount of empty space padding between images packed into the atlas
 
         Examples:
-            ./atlas-packer -t /home/MyUser/Downloads/
-            ./atlas-packer -n
+            ./atlas-packer -t /home/MyUser/Downloads -n
+            ./atlas-packer -p 16
 
-        Detailed example of console usage:
+        Detailed example of what console usage might look like:
             User@Computer:~/Desktop$ ls
             1126556862070915214.webp  centrifuge.png  image.png       my-image.png     Q5.png
             atlas-packer              CuteCat.png     Item_Gold.webp  pixelsword.webp  Scenery.png

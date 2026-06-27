@@ -24,3 +24,18 @@ Prepare a folder of image files you want to use, and copy the executable into th
 to appear.
 
 Alternatively, you can do the same setup and run it via a terminal to see progress information
+
+# Extra info & CLI options
+
+```
+Options:
+    [-v | --version]: Display the current application version
+    [-h | --help]: Display this help text
+    [-t | --target]: Specify a target folder to use. Default behaviour operates in the same folder as the executable is run in
+    [-n | --norotate]: Disable rotation of images when being packed into the atlas
+    [-p | --padding <value>]: Set the amount of empty space padding between images packed into the atlas
+
+Examples:
+    ./atlas-packer -t /home/MyUser/Downloads -n
+    ./atlas-packer -p 16
+```
