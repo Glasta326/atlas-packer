@@ -1,8 +1,5 @@
 use std::path::PathBuf;
-
-use image::{GenericImageView, ImageError, RgbaImage};
-
-use crate::atlas::{self, Region};
+use image::{ImageError, RgbaImage};
 
 const SUPPORTED_EXTENSIONS: [&'static str; 3] = ["png", "webp", "jpg"];
 

@@ -1,18 +1,31 @@
 use image::{ImageBuffer, ImageError, Rgba, imageops};
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, ops::Add};
+use serde::{Serialize, Serializer};
+use std::collections::HashMap;
 
 use crate::image_extract::TextureData;
 
 // Metadata that describes a texture's placement inside the atlas
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]// We dont de-serialise ever so we dont need it
 struct AtlasEntry {
     pub x: u32,
     pub y: u32,
     pub width: u32,
     pub height: u32,
+    
+    #[serde(
+        serialize_with = "bool_as_int"
+    )]
     pub rotated: bool,
 }
+
+// When the json serialises to write the output json file, it replaces true and false with 1 and 0
+pub fn bool_as_int<S>(value: &bool, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serializer.serialize_u8(if *value { 1 } else { 0 })
+}
+
 
 impl AtlasEntry {
     pub fn new(x: u32, y: u32, width: u32, height: u32, rotated: bool) -> Self {

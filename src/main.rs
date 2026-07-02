@@ -70,7 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(debug_assertions)]
     {
         path = PathBuf::new();
-        path.push("testing_images/");
+        path.push("/home/Glasta/Projects/Rust/atlas-packer/testing_images");
         println!("Debug mode!");
     }
 
