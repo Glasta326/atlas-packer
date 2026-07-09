@@ -5,16 +5,14 @@ use std::collections::HashMap;
 use crate::image_extract::TextureData;
 
 // Metadata that describes a texture's placement inside the atlas
-#[derive(Serialize)]// We dont de-serialise ever so we dont need it
+#[derive(Serialize)] // We dont de-serialise ever so we dont need it
 struct AtlasEntry {
     pub x: u32,
     pub y: u32,
     pub width: u32,
     pub height: u32,
-    
-    #[serde(
-        serialize_with = "bool_as_int"
-    )]
+
+    #[serde(serialize_with = "bool_as_int")]
     pub rotated: bool,
 }
 
@@ -25,7 +23,6 @@ where
 {
     serializer.serialize_u8(if *value { 1 } else { 0 })
 }
-
 
 impl AtlasEntry {
     pub fn new(x: u32, y: u32, width: u32, height: u32, rotated: bool) -> Self {
@@ -99,7 +96,7 @@ pub fn gen_atlas(
             .cmp(&(b.texture.dimensions().0 * b.texture.dimensions().1))
     });
 
-    let mut atlas_key: HashMap<String, AtlasEntry> = HashMap::new();
+    let mut atlas_key: Vec<AtlasEntry> = Vec::with_capacity(images.len());
     let atlas = pack_atlas(images, &mut atlas_key, allow_rotation);
 
     // Print info on the generated atlas keys
@@ -116,7 +113,7 @@ pub fn gen_atlas(
 
 fn pack_atlas(
     mut init_images: Vec<TextureData>,
-    atlas_data: &mut HashMap<String, AtlasEntry>,
+    atlas_data: &mut Vec<AtlasEntry>,
     allow_rotation: bool,
 ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     // Inital state for atlas dimensions
@@ -242,7 +239,7 @@ fn pack_atlas(
 // choose the split that produces the most balanced remaining space.
 fn recursive_pack(
     images: &mut Vec<TextureData>,
-    atlas_data: &mut HashMap<String, AtlasEntry>,
+    atlas_data: &mut Vec<AtlasEntry>,
     region_tree: &mut Vec<Region>,
     atlas_texture: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
     allow_rotation: bool,
@@ -337,11 +334,17 @@ fn recursive_pack(
 
         break;
     }
-    recursive_pack(images, atlas_data, region_tree, atlas_texture, allow_rotation);
+    recursive_pack(
+        images,
+        atlas_data,
+        region_tree,
+        atlas_texture,
+        allow_rotation,
+    );
 }
 
 fn insert_key(
-    atlas_data: &mut HashMap<String, AtlasEntry>,
+    atlas_data: &mut Vec<AtlasEntry>,
     image: &TextureData,
     pos_x: u32,
     pos_y: u32,
@@ -354,5 +357,5 @@ fn insert_key(
         image.texture.dimensions().1,
         rotated,
     );
-    atlas_data.insert(image.name.clone(), entry);
+    atlas_data.push(entry);
 }
