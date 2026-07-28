@@ -1,7 +1,8 @@
 # Atlas-packer
 
 This program collects all images in a target folder and subfolders and compiles them into a texture atlas image with a sibling metadata .JSON file
-The output of this program is designed for a seperate project of mine to use in its execution
+The output of this program is designed for a separate project of mine to use in its execution
+The packing algorithm was initially my own design, but i later learned already existed and is known as Guillotine packing
 
 
 ## Installation
