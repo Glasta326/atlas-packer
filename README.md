@@ -2,12 +2,13 @@
 
 This program collects all images in a target folder and subfolders and compiles them into a texture atlas image with a sibling metadata .JSON file
 The output of this program is designed for a separate project of mine to use in its execution
+
 The packing algorithm was initially my own design, but i later learned already existed and is known as Guillotine packing
 
 
 ## Installation
 
-This will come shipped as an executable file within the main project this code is for, but you can build and use on its own:
+I will likely ship a prebuilt executable inside the program this project was made for, but for now you can build from source:
 
 ```bash
 git clone https://github.com/Glasta326/atlas-packer.git
