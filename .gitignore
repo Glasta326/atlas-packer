@@ -27,5 +27,6 @@ target
 Cargo.lock
 output.png
 output.json
-testing_images/
+debug_input/
+debug_output/
 atsalg_with_regions.png

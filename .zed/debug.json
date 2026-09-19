@@ -11,36 +11,24 @@
     "sourceLanguages": ["rust"],
   },
   {
-    "label": "Run tests: Debug",
-    "adapter": "CodeLLDB",
-
-    "build": {
-      "command": "cargo",
-      "args": ["test", "--no-run"],
+      "label": "Run program with args: Debug",
+      "adapter": "CodeLLDB",
+      "build": {
+        "command": "cargo",
+        "args": ["build"],
+      },
+  
+      "request": "launch",
+      "program": "target/debug/atlas-packer",
+  
+      "args": [
+        "--input", "/home/Glasta/.steam/steam/steamapps/common/",
+        "--output", "debug_output",
+        "--norotate",
+        "--padding", "0",
+        "--name","atlas",
+        ],
+  
+      "sourceLanguages": ["rust"],
     },
-
-    "sourceLanguages": ["rust"],
-  },
-  {
-    "label": "Run program: Release",
-    "adapter": "CodeLLDB",
-
-    "build": {
-      "command": "cargo",
-      "args": ["run","-r"],
-    },
-
-    "sourceLanguages": ["rust"],
-  },
-  {
-    "label": "Build program: Release",
-    "adapter": "CodeLLDB",
-
-    "build": {
-      "command": "cargo",
-      "args": ["build", "-r"],
-    },
-
-    "sourceLanguages": ["rust"],
-  },
 ]

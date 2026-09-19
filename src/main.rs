@@ -11,25 +11,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Options:
             [-v | --version]: Display the current application version
             [-h | --help]: Display this help text
-            [-t | --target]: Specify a target folder to use. Default behaviour operates in the same folder as the executable is run in
-            [-n | --norotate]: Disable rotation of images when being packed into the atlas
+            [-i | --input]: Specify a target folder to collect images from. Default behaviour collects from the same folder as the executable is run in
+            [-o | --output]: Specify a target folder to output the resulting atlas files into
+            [-nr | --norotate]: Disable rotation of images when being packed into the atlas
             [-p | --padding <value>]: Set the amount of empty space padding between images packed into the atlas
+            [-n | --name <value>]: Set the output file names
 
         Examples:
-            ./atlas-packer -t /home/MyUser/Downloads -n
+            ./atlas-packer -i /home/MyUser/Downloads -n all_my_downloaded_images
             ./atlas-packer -p 16
-
-        Detailed example of what console usage might look like:
-            User@Computer:~/Desktop$ ls
-            1126556862070915214.webp  centrifuge.png  image.png       my-image.png     Q5.png
-            atlas-packer              CuteCat.png     Item_Gold.webp  pixelsword.webp  Scenery.png
-            pixelsword.png  
-            User@Computer:~/Desktop$ ./atlas-packer -n
-            > Program output...
-            > Program output...
-            User@Computer:~/Desktop$ ls
-            1126556862070915214.webp  centrifuge.png  image.png       my-image.png  output.png       Q5.png
-            atlas-packer              CuteCat.png     Item_Gold.webp  output.json   pixelsword.webp  Scenery.png
         "
         );
         return Ok(());
@@ -38,18 +28,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    let mut path = std::env::current_dir()?;
+    let mut input_path = std::env::current_dir()?;
+    let mut output_path = std::env::current_dir()?;
     let mut args = std::env::args_os().skip(1);
 
     let mut canrotate = true;
     let mut padding = 0;
+    let mut file_name = "output".to_string();
     while let Some(arg) = args.next() {
         match arg.to_string_lossy().to_lowercase().as_ref() {
-            "-t" | "--target" => {
-                let target_folder = args.next().ok_or(format!("{} was used, but no folder path was provided.\nHint: use -h or --help for info",arg.display()))?;
-                path = PathBuf::from(target_folder);
+            "-i" | "--input" => {
+                let input_folder = args.next().ok_or(format!("{} was used, but no input folder path was provided.\nHint: use -h or --help for info",arg.display()))?;
+                input_path = PathBuf::from(input_folder);
             }
-            "-n" | "--norotate" => {
+            "-o" | "--output" => {
+                let output_folder = args.next().ok_or(format!("{} was used, but no output folder path was provided.\nHint: use -h or --help for info",arg.display()))?;
+                output_path = PathBuf::from(output_folder);
+            }
+            "-nr" | "--norotate" => {
                 canrotate = false;
                 println!("Disabled rotation.");
             }
@@ -60,22 +56,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ))?;
                 padding = v.to_string_lossy().parse()?;
             }
+            "-n" | "--name" => {
+                let n = args.next().ok_or(format!(
+                    "{} was used, but no file name was provided.\nHint: use -h or --help for info",
+                    arg.display()
+                ))?;
+                file_name = n.to_string_lossy().to_owned().to_string();
+            }
             _ => {
                 return Err(format!("Unknown parameter: '{}'", arg.display()))?;
             }
         }
     }
 
-    //Debug folder
-    #[cfg(debug_assertions)]
-    {
-        path = PathBuf::new();
-        path.push("/home/Glasta/Projects/Rust/atlas-packer/testing_images");
-        println!("Debug mode!");
-    }
+    // //Debug folder
+    // #[cfg(debug_assertions)]
+    // {
+    //     path = PathBuf::new();
+    //     path.push("/home/Glasta/Projects/Rust/atlas-packer/testing_images");
+    //     println!("Debug mode!");
+    // }
 
-    println!("Finding files inside folder: {}\n", path.display());
-    let files = image_extract::collect_files(&path)?;
+    // TODO: cli arg to enable/disable recursive search
+    println!("Finding files inside folder: {}\n", input_path.display());
+    let files = image_extract::collect_files(&input_path)?;
 
     if files.len() == 0 {
         println!("No files with an extension were found!");
@@ -87,9 +91,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (atlas, json) = atlas::gen_atlas(images, canrotate)?;
 
     println!("\nSaving output files...");
-    let filename = "output".to_string();
-    atlas.save(filename.clone().add(".png"))?;
-    std::fs::write(filename.clone().add(".json"), json)?;
+    let mut output_image_fp = output_path.clone();
+    output_image_fp.push(file_name.clone().add(".png"));
+    atlas.save(output_image_fp)?;
+
+    let mut output_json_fp = output_path.clone();
+    output_json_fp.push(file_name.clone().add(".json"));
+    std::fs::write(output_json_fp, json)?;
 
     println!("Complete!");
 
