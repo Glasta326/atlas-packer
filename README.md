@@ -20,9 +20,9 @@ Note: Requires you have rust and associated cargo packages installed on your sys
 
 ## Usage
 
-Prepare a folder of image files you want to use, and copy the executable into that folder, run it and wait for the files:
-- output.png
-- output.json
+Prepare a folder of image files you want to use, and place the executable into that folder, run it and wait for the files:
+- atlas.png
+- atlas.json
 to appear.
 
 Alternatively, you can do the same setup and run it via a terminal to see progress information
@@ -36,6 +36,7 @@ Options:
     [-t | --target]: Specify a target folder to use. Default behaviour operates in the same folder as the executable is run in
     [-n | --norotate]: Disable rotation of images when being packed into the atlas
     [-p | --padding <value>]: Set the amount of empty space padding between images packed into the atlas
+    [-n | --name <value>]: Set the output file names
 
 Examples:
     ./atlas-packer -t /home/MyUser/Downloads -n
